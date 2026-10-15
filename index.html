@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1d1612">
+  <meta name="description" content="گربه‌رقصان — پنج گربه که با آهنگ تو می‌رقصن و می‌نوازن.">
+  <title>گربه‌رقصان</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Harmattan:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>گربه‌رقصان</h1>
+  <p class="sub">آهنگت رو بنداز تو؛ پنج تا گربه به سلیقهٔ خودشون می‌رقصن و می‌نوازن.</p>
+
+  <!-- ============================================================
+       صحنه
+       ============================================================ -->
+  <section class="stage" id="stage" aria-label="صحنهٔ رقص گربه‌ها">
+    <canvas id="cv"></canvas>
+    <div class="badge" id="badge">منتظر موزیک…</div>
+  </section>
+
+  <!-- ============================================================
+       میز پلیر
+       ============================================================ -->
+  <section class="deck">
+
+    <!-- عنوان آهنگ + رکوردهای چرخان -->
+    <div class="tape">
+      <div class="label">
+        <span id="title">هنوز آهنگی نیست</span>
+        <span id="sub">یه فایل صوتی انتخاب کن</span>
+      </div>
+      <div class="win" aria-hidden="true">
+        <svg viewBox="-30 -30 60 60">
+          <g id="r1">
+            <circle r="26" fill="#3a2a1f"/>
+            <circle r="9" fill="#f1e4cc"/>
+            <path d="M0-9V-24M8-5L21-12M8 5L21 12M0 9V24M-8 5L-21 12M-8-5L-21-12"
+                  stroke="#f1e4cc" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <svg viewBox="-30 -30 60 60">
+          <g id="r2">
+            <circle r="26" fill="#3a2a1f"/>
+            <circle r="9" fill="#f1e4cc"/>
+            <path d="M0-9V-24M8-5L21-12M8 5L21 12M0 9V24M-8 5L-21 12M-8-5L-21-12"
+                  stroke="#f1e4cc" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- نوسان‌نمای صدا -->
+    <canvas id="vu" aria-label="نوسان صدا"></canvas>
+
+    <!-- تایم‌لاین کاغذی (هم‌خانواده با طراحی سایت) -->
+    <div class="timeline" id="tl">
+      <span class="t" id="tc">0:00</span>
+      <div class="track" id="track" role="slider" aria-label="زمان پخش"
+           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <div class="fill" id="fill"></div>
+        <div class="pin"  id="pin"></div>
+      </div>
+      <span class="t" id="td">0:00</span>
+    </div>
+
+    <!-- کنترل‌های پخش -->
+    <div class="btns">
+      <button class="btn" id="prev" type="button" aria-label="قبلی">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 5h2v14H6zM20 5v14L9 12z"/>
+        </svg>
+      </button>
+      <button class="btn big" id="play" type="button" aria-label="پخش">
+        <svg viewBox="0 0 24 24" id="ic" aria-hidden="true">
+          <path d="M7 4v16l13-8z"/>
+        </svg>
+      </button>
+      <button class="btn" id="next" type="button" aria-label="بعدی">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M16 5h2v14h-2zM4 5l11 7L4 19z"/>
+        </svg>
+      </button>
+      <input class="vol" type="range" id="vol" min="0" max="100" value="85"
+             aria-label="صدا">
+    </div>
+
+    <!-- سنجه‌ها (بدون نمایش درصد راک) -->
+    <div class="meters">
+      <div class="m"><span>تمپو</span><b id="mb">—</b></div>
+      <div class="m"><span>حال‌وهوا</span><b id="mm">—</b></div>
+      <div class="m"><span>انرژی</span><b id="me">۰</b><i><u id="ue"></u></i></div>
+    </div>
+
+    <!-- انتخاب سبک -->
+    <div class="stylebar">
+      <div class="cur" id="styleName">سبک: راک</div>
+      <button id="styleBtn" type="button">تغییر سبک</button>
+    </div>
+
+    <!-- ناحیهٔ کشیدن فایل -->
+    <label class="drop" id="drop">
+      <input type="file" id="file" accept="audio/*" multiple>
+      🎵 آهنگ‌هات رو اینجا بنداز یا بزن تا انتخاب کنی
+    </label>
+
+    <!-- لیست پخش -->
+    <ul id="list"></ul>
+  </section>
+</main>
+
+<!-- ============================================================
+     مودال انتخاب سبک
+     ============================================================ -->
+<div class="modal" id="modal" role="dialog" aria-modal="true"
+     aria-labelledby="modalTitle" aria-hidden="true">
+  <div class="modal-box">
+    <h2 id="modalTitle">سبک آهنگت چیه؟</h2>
+    <p>بر اساس انتخاب تو، لباس و ساز گربه‌ها عوض می‌شه.</p>
+    <div class="style-grid" id="styleGrid"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     پخش‌کننده و اسکریپت
+     ============================================================ -->
+<audio id="au" preload="auto"></audio>
+<script src="script.js"></script>
+</body>
+</html>
