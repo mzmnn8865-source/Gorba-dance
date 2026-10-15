@@ -1,0 +1,1005 @@
+/* ============================================================================
+   گربه‌رقصان — استایل اصلی
+   ----------------------------------------------------------------------------
+   زبان طراحی: «کافهٔ چوبی / کاغذ کهنه»
+   ساختار:
+     ۱) متغیرها و ریست
+     ۲) بافت پس‌زمینه
+     ۳) چیدمان کلی
+     ۴) تیتر و زیرتیتر
+     ۵) صحنه (stage)
+     ۶) میز پلیر (deck)
+     ۷) کاست عنوان (tape) + رکوردها (win)
+     ۸) نوسان‌نما (VU)
+     ۹) تایم‌لاین کاغذی
+    ۱۰) کنترل‌ها (buttons + volume)
+    ۱۱) سنجه‌ها (meters)
+    ۱۲) انتخاب سبک (stylebar)
+    ۱۳) ناحیهٔ کشیدن فایل (drop)
+    ۱۴) لیست پخش
+    ۱۵) مودال انتخاب سبک
+    ۱۶) حالت‌های خاص (focus، reduced motion، موبایل)
+   ============================================================================ */
+
+
+/* ============================================================================
+   ۱) متغیرها و ریست
+   ============================================================================ */
+
+:root {
+  /* --- پالت اصلی --- */
+  --bg:     #1d1612;   /* پس‌زمینهٔ اصلی: قهوه‌ای خیلی تیره */
+  --paper:  #f1e4cc;   /* کاغذ کرم روشن */
+  --ink:    #2b1d14;   /* جوهر قهوه‌ای تیره */
+  --hot:    #ff6b3d;   /* نارنجی گرم (اکسنت اصلی) */
+  --mint:   #7fd6b0;   /* سبز نعنایی ملایم (متن سنجه) */
+  --wood:   #3a2a1f;   /* چوب میانی */
+  --wood-2: #4a3526;   /* چوب روشن‌تر (میز) */
+  --wood-3: #2f2118;   /* چوب تیره‌تر */
+  --tape:   #e8d9a8;   /* چسب کاغذی */
+
+  /* --- اندازه‌ها --- */
+  --radius-stage:  22px 30px 20px 28px;
+  --radius-deck:   26px 18px 28px 20px;
+  --radius-tape:   14px 10px 16px 10px;
+  --radius-card:   12px  8px  12px  8px;
+  --radius-btn:    16px 12px 16px 12px;
+
+  /* --- امن‌منطقه‌ی آیفون --- */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* --- حالت رنگ --- */
+  color-scheme: dark;
+
+  /* --- امن‌منطقه روی خود ریشه --- */
+  padding-top: var(--safe-t);
+  padding-bottom: var(--safe-b);
+}
+
+/* ریست سراسری: همه‌ی عناصر با border-box محاسبه شوند */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* حذف مارجین پیش‌فرض و تنظیم پایه */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--paper);
+  font-family: 'Harmattan', 'Tahoma', system-ui, sans-serif;
+  font-size: 19px;
+  line-height: 1.5;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* جلوگیری از اسکرول افقی در موبایل */
+html {
+  overflow-x: hidden;
+}
+
+/* پس‌زمینهٔ گرادیانی رادیال از بالا (شعلهٔ گرم) */
+body {
+  background:
+    radial-gradient(120% 60% at 50% 0%, #3b2417 0%, var(--bg) 70%)
+    fixed;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+
+/* ============================================================================
+   ۲) بافت پس‌زمینه (نویز کاغذی)
+   ----------------------------------------------------------------------------
+   یک لایهٔ fixed که با mix-blend-mode: overlay روی کل صفحه می‌شینه
+   و با SVG turbulence نویز ریز می‌سازه.
+   ============================================================================ */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .07;
+  mix-blend-mode: overlay;
+  z-index: 1;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='2'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+}
+
+
+/* ============================================================================
+   ۳) چیدمان کلی
+   ============================================================================ */
+
+main {
+  position: relative;
+  z-index: 2;                 /* بالای لایهٔ نویز */
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 14px 14px 40px;
+}
+
+
+/* ============================================================================
+   ۴) تیتر و زیرتیتر
+   ============================================================================ */
+
+h1 {
+  font: 400 clamp(34px, 9vw, 56px) / 1 'Lalezar', 'Tahoma', sans-serif;
+  margin: 6px 4px 2px;
+  color: var(--paper);
+  transform: rotate(-1.2deg);
+  text-shadow: 3px 3px 0 var(--hot);
+  letter-spacing: .02em;
+}
+
+.sub {
+  margin: 0 6px 12px;
+  opacity: .7;
+  font-size: 17px;
+}
+
+
+/* ============================================================================
+   ۵) صحنه (stage)
+   ============================================================================ */
+
+.stage {
+  position: relative;
+  height: clamp(320px, 52vh, 500px);
+  border-radius: var(--radius-stage);
+  overflow: hidden;
+  border: 3px solid #000;
+  box-shadow:
+    0 0 0 3px var(--wood),
+    0 14px 30px rgba(0, 0, 0, .6);
+  /* ترنسفورم شیک با JS تنظیم می‌شود */
+  will-change: transform;
+}
+
+.stage canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* برچسب بالای صحنه (وضعیت پخش) */
+.badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 2px 12px 4px;
+  border-radius: 12px 4px 12px 4px;
+  font-weight: 700;
+  font-size: 16px;
+  transform: rotate(-2deg);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, .45);
+  z-index: 3;
+  pointer-events: none;
+}
+
+
+/* ============================================================================
+   ۶) میز پلیر (deck)
+   ----------------------------------------------------------------------------
+   میز چوبی با گرادیان، لبه‌های نامنظم، و دو تکه چسب کاغذی بالای آن.
+   ============================================================================ */
+
+.deck {
+  position: relative;
+  margin-top: 22px;
+  padding: 18px 16px 16px;
+  background: linear-gradient(160deg, var(--wood-2), var(--wood-3));
+  border-radius: var(--radius-deck);
+  border: 2px solid rgba(0, 0, 0, .5);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .13),
+    0 12px 28px rgba(0, 0, 0, .6);
+}
+
+/* دو تکه چسب کاغذی بالای میز */
+.deck::before,
+.deck::after {
+  content: "";
+  position: absolute;
+  width: 74px;
+  height: 22px;
+  background: rgba(232, 217, 168, .8);
+  top: -11px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3);
+  pointer-events: none;
+}
+
+.deck::before {
+  right: 22px;
+  transform: rotate(-5deg);
+}
+
+.deck::after {
+  left: 26px;
+  right: auto;
+  transform: rotate(4deg);
+}
+
+
+/* ============================================================================
+   ۷) کاست عنوان (tape) + رکوردها (win)
+   ============================================================================ */
+
+.tape {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius-tape);
+  padding: 10px 12px 12px;
+  transform: rotate(.4deg);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, .4);
+}
+
+/* خط جداکنندهٔ زیر عنوان */
+.label {
+  border-bottom: 2px dashed rgba(43, 29, 20, .33);
+  padding-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+/* اسم آهنگ */
+#title {
+  font: 400 26px / 1.2 'Lalezar', sans-serif;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--ink);
+}
+
+/* زیرعنوان (وضعیت) */
+#sub {
+  opacity: .65;
+  font-size: 17px;
+  display: block;
+}
+
+/* پنجرهٔ رکوردها */
+.win {
+  background: #1a120d;
+  border-radius: 40px;
+  height: 74px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 22px;
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, .9);
+  overflow: hidden;
+}
+
+.win svg {
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  /* چرخش با JS روی g داخل svg اعمال می‌شود */
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .5));
+}
+
+/* پیش‌فرض: وسط چرخش = مرکز خود svg */
+.win g {
+  transform-origin: 0 0;
+  transform-box: fill-box;
+}
+
+
+/* ============================================================================
+   ۸) نوسان‌نما (VU)
+   ============================================================================ */
+
+#vu {
+  width: 100%;
+  height: 46px;
+  display: block;
+  margin: 12px 0 4px;
+}
+
+
+/* ============================================================================
+   ۹) تایم‌لاین کاغذی
+   ----------------------------------------------------------------------------
+   به‌جای input[type=range] پیش‌فرض که با طراحی نمی‌خورد، یک نوار کاغذی
+   با پراگرس «جوهر خورده» و پین «سوزن گرامافون». بدون هیچ درخششی.
+   ============================================================================ */
+
+.timeline {
+  position: relative;
+  height: 34px;
+  margin: 10px 2px 6px;
+  background: linear-gradient(180deg, #2a1c12, #1a1109);
+  border-radius: 8px;
+  padding: 6px 8px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .9);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  direction: ltr;             /* زمان چپ و راست همیشه چپ‌چین */
+}
+
+/* اعداد زمان (چپ و راست) */
+.timeline .t {
+  font-family: 'Lalezar', sans-serif;
+  font-size: 15px;
+  color: var(--paper);
+  opacity: .75;
+  min-width: 42px;
+  text-align: center;
+  letter-spacing: .03em;
+  user-select: none;
+  flex: 0 0 auto;
+}
+
+/* ریل تایم‌لاین */
+.timeline .track {
+  position: relative;
+  flex: 1 1 auto;
+  height: 8px;
+  background: rgba(241, 228, 204, .07);
+  border-radius: 2px;
+  cursor: pointer;
+  border-top: 1px solid rgba(0, 0, 0, .5);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .8);
+  touch-action: none;         /* برای pointer events تمیز */
+}
+
+/* خط‌خطی تزئینی روی ریل (کاغذ خط‌دار) */
+.timeline .track::before {
+  content: "";
+  position: absolute;
+  inset: 2px 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0 15px,
+    rgba(241, 228, 204, .1) 15px 16px
+  );
+  pointer-events: none;
+  border-radius: 2px;
+}
+
+/* نوار پراگرس (کاغذ جوهرخورده) — از راست پر می‌شود */
+.timeline .fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 0;
+  background:
+    repeating-linear-gradient(90deg,
+      var(--paper) 0 2px,
+      transparent 2px 5px),
+    var(--paper);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .45);
+  transition: width .04s linear;
+  pointer-events: none;
+}
+
+/* پین سوزن گرامافون */
+.timeline .pin {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--paper);
+  border: 2px solid #000;
+  border-radius: 50%;
+  transform: translate(50%, -50%);
+  box-shadow: 0 1px 0 #000;
+  transition: right .04s linear;
+  pointer-events: none;
+}
+
+/* در حالت drag، transition را حذف کن تا lag نداشته باشد */
+.timeline .track:active ~ .fill,
+.timeline .track:active ~ .pin,
+.timeline .track.dragging ~ .fill,
+.timeline .track.dragging ~ .pin {
+  transition: none;
+}
+
+
+/* ============================================================================
+   ۱۰) کنترل‌ها (buttons + volume)
+   ============================================================================ */
+
+.btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 12px 0;
+  direction: ltr;
+}
+
+/* دکمه‌ها */
+.btn {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-btn);
+  border: 2px solid #000;
+  background: #d9c7a4;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 5px 0 #000;
+  cursor: pointer;
+  padding: 0;
+  transition: transform .06s ease, box-shadow .06s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:hover {
+  filter: brightness(1.06);
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #000;
+}
+
+.btn:focus-visible {
+  outline: 3px solid var(--hot);
+  outline-offset: 2px;
+}
+
+/* دکمهٔ بزرگ پخش */
+.btn.big {
+  width: 72px;
+  height: 66px;
+  background: var(--hot);
+  color: #fff;
+}
+
+.btn svg {
+  width: 26px;
+  height: 26px;
+  fill: currentColor;
+  display: block;
+}
+
+/* اسلایدر صدا */
+.vol {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90px;
+  flex: 0 0 auto;
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .45);
+  outline: 0;
+  direction: ltr;
+  cursor: pointer;
+}
+
+/* تراکم thumb در وب‌کیت */
+.vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--hot);
+  border: 3px solid var(--paper);
+  box-shadow: 0 2px 0 #000;
+  cursor: pointer;
+}
+
+/* thumb در فایرفاکس */
+.vol::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--hot);
+  border: 3px solid var(--paper);
+  cursor: pointer;
+  box-shadow: 0 2px 0 #000;
+}
+
+.vol:focus-visible {
+  outline: 3px solid var(--hot);
+  outline-offset: 4px;
+}
+
+
+/* ============================================================================
+   ۱۱) سنجه‌ها (meters)
+   ----------------------------------------------------------------------------
+   سه کارت: تمپو / حال‌وهوا / انرژی. کارت راک عمداً حذف شده.
+   ============================================================================ */
+
+.meters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 8px 0 14px;
+}
+
+.m {
+  background: rgba(0, 0, 0, .35);
+  border-radius: var(--radius-card);
+  padding: 6px 8px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, .07);
+  overflow: hidden;
+}
+
+.m b {
+  display: block;
+  font: 400 22px 'Lalezar', sans-serif;
+  color: var(--mint);
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.m span {
+  font-size: 15px;
+  opacity: .65;
+  display: block;
+}
+
+/* نوار کوچک زیر کارت انرژی */
+.m i {
+  display: block;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, .13);
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.m i u {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--hot);
+  border-radius: 3px;
+  transition: width .08s linear;
+}
+
+
+/* ============================================================================
+   ۱۲) انتخاب سبک (stylebar)
+   ============================================================================ */
+
+.stylebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(0, 0, 0, .3);
+  border-radius: var(--radius-card);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, .07);
+}
+
+/* متن سبک فعلی + نقطهٔ رنگی */
+.stylebar .cur {
+  font-family: 'Lalezar', sans-serif;
+  color: var(--paper);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.2;
+}
+
+.stylebar .cur::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--hot);
+  box-shadow: 0 0 0 2px #000;
+  flex: 0 0 auto;
+  /* رنگ نقطه با JS عوض می‌شود */
+  transition: background .25s ease;
+}
+
+/* دکمهٔ تغییر سبک */
+.stylebar button {
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid #000;
+  border-radius: 8px 6px 8px 6px;
+  font-family: 'Lalezar', sans-serif;
+  font-size: 17px;
+  padding: 4px 14px 6px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #000;
+  transition: transform .06s ease, box-shadow .06s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stylebar button:hover {
+  filter: brightness(1.05);
+}
+
+.stylebar button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #000;
+}
+
+.stylebar button:focus-visible {
+  outline: 3px solid var(--hot);
+  outline-offset: 2px;
+}
+
+
+/* ============================================================================
+   ۱۳) ناحیهٔ کشیدن فایل (drop)
+   ============================================================================ */
+
+.drop {
+  display: block;
+  text-align: center;
+  padding: 14px;
+  border: 2px dashed rgba(241, 228, 204, .47);
+  border-radius: 16px;
+  cursor: pointer;
+  transform: rotate(-.5deg);
+  transition: background .15s ease, border-color .15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.drop:hover,
+.drop.on {
+  background: rgba(255, 107, 61, .13);
+  border-color: var(--hot);
+}
+
+.drop input {
+  display: none;
+}
+
+.drop:focus-within {
+  outline: 3px solid var(--hot);
+  outline-offset: 3px;
+}
+
+
+/* ============================================================================
+   ۱۴) لیست پخش
+   ============================================================================ */
+
+#list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+#list li {
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, .25);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  transition: background .12s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#list li:hover {
+  background: rgba(0, 0, 0, .4);
+}
+
+#list li.cur {
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+#list li span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1 1 auto;
+}
+
+#list li span:last-child {
+  flex: 0 0 auto;
+  opacity: .7;
+  font-size: 15px;
+}
+
+#list li.cur span:last-child {
+  opacity: .9;
+}
+
+
+/* ============================================================================
+   ۱۵) مودال انتخاب سبک
+   ============================================================================ */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 9, 6, .85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 50;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.modal.on {
+  display: flex;
+  animation: modalFade .18s ease-out;
+}
+
+@keyframes modalFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* جعبهٔ مودال */
+.modal-box {
+  background: linear-gradient(160deg, var(--wood-2), var(--wood-3));
+  border: 3px solid #000;
+  box-shadow:
+    0 0 0 3px var(--wood),
+    0 20px 60px rgba(0, 0, 0, .7);
+  border-radius: var(--radius-deck);
+  padding: 22px 20px 20px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+  animation: modalPop .22s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+@keyframes modalPop {
+  from { transform: scale(.94); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.modal-box h2 {
+  font: 400 30px 'Lalezar', sans-serif;
+  margin: 0 0 4px;
+  color: var(--paper);
+  transform: rotate(-1deg);
+  text-shadow: 2px 2px 0 var(--hot);
+  display: inline-block;
+}
+
+.modal-box p {
+  margin: 0 0 18px;
+  opacity: .75;
+  font-size: 16px;
+}
+
+/* شبکهٔ کارت‌های سبک */
+.style-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* کارت سبک */
+.style-card {
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid #000;
+  border-radius: 14px 10px 16px 10px;
+  padding: 12px 10px 14px;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 4px 0 #000;
+  transition: transform .08s ease, box-shadow .08s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.style-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #000;
+}
+
+.style-card:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #000;
+}
+
+.style-card:focus-visible {
+  outline: 3px solid var(--hot);
+  outline-offset: 2px;
+}
+
+/* آیکن SVG داخل کارت */
+.style-card svg {
+  width: 56px;
+  height: 56px;
+  display: block;
+  margin: 0 auto 4px;
+}
+
+.style-card b {
+  font: 400 22px 'Lalezar', sans-serif;
+  display: block;
+  line-height: 1.2;
+}
+
+.style-card span {
+  font-size: 14px;
+  opacity: .65;
+  display: block;
+}
+
+/* چرخه‌ی رنگ بالا-چپ کارت */
+.style-card .swatch {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 2px solid #000;
+}
+
+
+/* ============================================================================
+   ۱۶) حالت‌های خاص
+   ============================================================================ */
+
+/* --- focus منصفانه --- */
+:focus-visible {
+  outline-color: var(--hot);
+}
+
+/* --- اسکرول‌بار در حالت تیره --- */
+.modal-box::-webkit-scrollbar {
+  width: 8px;
+}
+.modal-box::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, .3);
+  border-radius: 4px;
+}
+.modal-box::-webkit-scrollbar-thumb {
+  background: rgba(241, 228, 204, .3);
+  border-radius: 4px;
+}
+.modal-box::-webkit-scrollbar-thumb:hover {
+  background: rgba(241, 228, 204, .5);
+}
+
+/* --- احترام به تنظیمات کاهش حرکت کاربر --- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .stage {
+    transform: none !important;
+  }
+}
+
+/* --- موبایل کوچک --- */
+@media (max-width: 520px) {
+  html, body {
+    font-size: 18px;
+  }
+  main {
+    padding: 10px 10px 30px;
+  }
+  .stage {
+    height: clamp(280px, 46vh, 420px);
+    border-radius: 18px 24px 16px 22px;
+  }
+  .deck {
+    padding: 14px 12px 12px;
+    border-radius: 22px 14px 22px 16px;
+  }
+  .win {
+    height: 62px;
+    padding: 0 14px;
+  }
+  .win svg {
+    width: 48px;
+    height: 48px;
+  }
+  .btn {
+    width: 48px;
+    height: 48px;
+  }
+  .btn.big {
+    width: 64px;
+    height: 58px;
+  }
+  .vol {
+    width: 70px;
+  }
+  .meters {
+    gap: 6px;
+  }
+  .m b {
+    font-size: 20px;
+  }
+  .m span {
+    font-size: 14px;
+  }
+  .timeline .t {
+    min-width: 36px;
+    font-size: 13px;
+  }
+  .style-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .style-card {
+    padding: 10px 8px 12px;
+  }
+  .style-card svg {
+    width: 46px;
+    height: 46px;
+  }
+  .style-card b {
+    font-size: 19px;
+  }
+  .style-card span {
+    font-size: 13px;
+  }
+  .modal-box {
+    padding: 18px 14px 16px;
+  }
+  .modal-box h2 {
+    font-size: 26px;
+  }
+}
+
+/* --- موبایل خیلی کوچک (۳۲۰px) --- */
+@media (max-width: 360px) {
+  .btns {
+    gap: 8px;
+  }
+  .btn {
+    width: 44px;
+    height: 44px;
+  }
+  .btn.big {
+    width: 58px;
+    height: 54px;
+  }
+  .vol {
+    width: 56px;
+  }
+  .style-card span {
+    display: none;
+  }
+}
+
+/* --- حالت افقی کوتاه (موبایل چرخیده) --- */
+@media (max-height: 520px) and (orientation: landscape) {
+  .stage {
+    height: 60vh;
+  }
+  .win {
+    height: 56px;
+  }
+  .win svg {
+    width: 44px;
+    height: 44px;
+  }
+  }
